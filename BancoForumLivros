@@ -1,0 +1,133 @@
+-- Criação do Banco de dados
+
+CREATE DATABASE IF NOT EXISTS ForumLiterario;
+USE ForumLiterario;
+
+CREATE TABLE UsuUsuarios (
+    UsuId INT PRIMARY KEY AUTO_INCREMENT,
+    UsuNome VARCHAR(100) NOT NULL,
+    UsuEmail VARCHAR(150) NOT NULL UNIQUE,
+    UsuSenha VARCHAR(255) NOT NULL,
+    UsuDataDeNascimento DATE,
+    UsuDataCadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UsuAtivo TINYINT DEFAULT 1
+);
+
+-- Criação das tabelas
+
+CREATE TABLE CTLCategoriasDeLivros (
+    CTLId INT PRIMARY KEY AUTO_INCREMENT,
+    CTLNome VARCHAR(100) NOT NULL,
+    CTLDescricao TEXT,
+    CTLAtivo TINYINT DEFAULT 1
+);
+
+CREATE TABLE LivLivros (
+    LivId INT PRIMARY KEY AUTO_INCREMENT,
+    LivTitulo VARCHAR(150) NOT NULL,
+    LivAutor VARCHAR(100) NOT NULL,
+    LivEditora VARCHAR(100),
+    LivAnoPublicacao SMALLINT,
+    LivDescricao TEXT,
+    LivCategoriaId INT,
+    LivAtivo TINYINT DEFAULT 1,
+    FOREIGN KEY (LivCategoriaId) REFERENCES CTLCategoriasDeLivros(CTLId)
+);
+
+CREATE TABLE TopTopicosDeDiscussao (
+    TopId INT PRIMARY KEY AUTO_INCREMENT,
+    TopNome VARCHAR(100) NOT NULL,
+    TopDescricao TEXT,
+    TopDataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    TopAtivo TINYINT DEFAULT 1
+);
+
+CREATE TABLE PosPostagens (
+    PosId INT PRIMARY KEY AUTO_INCREMENT,
+    PosTitulo VARCHAR(150) NOT NULL,
+    PosConteudo TEXT NOT NULL,
+    PosDataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PosUsuId INT,
+    PosTopId INT,
+    PosAtivo TINYINT DEFAULT 1,
+    FOREIGN KEY (PosUsuId) REFERENCES UsuUsuarios(UsuId),
+    FOREIGN KEY (PosTopId) REFERENCES TopTopicosDeDiscussao(TopId)
+);
+
+CREATE TABLE ComComentarios (
+    ComId INT PRIMARY KEY AUTO_INCREMENT,
+    ComConteudo TEXT NOT NULL,
+    ComDataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ComUsuId INT,
+    ComPosId INT,
+    ComAtivo TINYINT DEFAULT 1,
+    FOREIGN KEY (ComUsuId) REFERENCES UsuUsuarios(UsuId),
+    FOREIGN KEY (ComPosId) REFERENCES PosPostagens(PosId)
+);
+
+CREATE TABLE AvaAvaliacoes (
+    AvaId INT PRIMARY KEY AUTO_INCREMENT,
+    AvaNota DECIMAL(2,1) NOT NULL,
+    AvaComentario TEXT,
+    AvaDataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    AvaUsuId INT,
+    AvaLivId INT,
+    AvaAtivo TINYINT DEFAULT 1,
+    FOREIGN KEY (AvaUsuId) REFERENCES UsuUsuarios(UsuId),
+    FOREIGN KEY (AvaLivId) REFERENCES LivLivros(LivId)
+);
+
+-- Inserts de dados de exemplos
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+INSERT INTO UsuUsuarios (UsuNome, UsuEmail, UsuSenha, UsuDataDeNascimento) VALUES
+('Rodrigo Costa', 'rodrigo.costa@example.com', 'senha123', '1985-07-11'),
+('Vanessa Lima', 'vanessa.lima@example.com', 'senha123', '1990-04-22'),
+('Carlos Souza', 'carlos.souza@example.com', 'senha123', '1978-10-08'),
+('Juliana Pereira', 'juliana.pereira@example.com', 'senha123', '1995-02-16'),
+('Marcos Silva', 'marcos.silva@example.com', 'senha123', '1982-12-30');
+
+INSERT INTO CTLCategoriasDeLivros (CTLNome, CTLDescricao) VALUES
+('Ficção Científica', 'Livros que exploram ciência e tecnologia no futuro.'),
+('Romance', 'Histórias de amor e relacionamentos.'),
+('Terror', 'Histórias assustadoras e sobrenaturais.'),
+('Fantasia', 'Universos mágicos e épicos.'),
+('Biografia', 'Histórias reais sobre pessoas notáveis.');
+
+INSERT INTO LivLivros (LivTitulo, LivAutor, LivEditora, LivAnoPublicacao, LivDescricao, LivCategoriaId) VALUES
+('Duna', 'Frank Herbert', 'Aleph', 1965, 'Uma história épica de ficção científica.', 1),
+('Orgulho e Preconceito', 'Jane Austen', 'Penguin', 1813, 'Clássico romance britânico.', 2),
+('Drácula', 'Bram Stoker', 'Zahar', 1897, 'Um clássico do terror gótico.', 3),
+('O Senhor dos Anéis', 'J.R.R. Tolkien', 'HarperCollins', 1954, 'Aventuras na Terra Média.', 4),
+('Steve Jobs', 'Walter Isaacson', 'Companhia das Letras', 2011, 'Biografia do fundador da Apple.', 5);
+
+INSERT INTO TopTopicosDeDiscussao (TopNome, TopDescricao) VALUES
+('Discussão sobre Duna', 'Debate sobre o universo de Duna.'),
+('Romances Clássicos', 'Discussões sobre grandes romances.'),
+('Histórias que dão medo', 'Compartilhe suas leituras de terror.'),
+('Universos de fantasia', 'Debate sobre construções mágicas.'),
+('Inspirações reais', 'Livros sobre pessoas reais e suas trajetórias.');
+
+INSERT INTO PosPostagens (PosTitulo, PosConteudo, PosUsuId, PosTopId) VALUES
+('O que acharam de Duna?', 'Gostei muito do universo complexo.', 1, 1),
+('Orgulho e Preconceito é super atual', 'Mesmo sendo antigo, fala muito sobre a sociedade.', 2, 2),
+('Drácula ainda assusta?', 'Achei que o livro envelheceu bem.', 3, 3),
+('A melhor batalha de O Senhor dos Anéis', 'Helm\'s Deep é insana!', 4, 4),
+('Lições com Steve Jobs', 'A história dele é inspiradora.', 5, 5);
+
+INSERT INTO ComComentarios (ComConteudo, ComUsuId, ComPosId) VALUES
+('Concordo, Duna é sensacional!', 2, 1),
+('A escrita de Austen é maravilhosa.', 1, 2),
+('Sim! Algumas partes ainda dão medo!', 5, 3),
+('Tolkien é mestre mesmo.', 3, 4),
+('Jobs era um gênio e tanto.', 4, 5);
+
+INSERT INTO AvaAvaliacoes (AvaNota, AvaComentario, AvaUsuId, AvaLivId) VALUES
+(5.0, 'Uma obra-prima!', 1, 1),
+(4.5, 'Muito bem escrito.', 2, 2),
+(4.0, 'Assustador e marcante.', 3, 3),
+(5.0, 'Fantástico do início ao fim.', 4, 4),
+(4.5, 'Muito inspirador.', 5, 5);
+
+SET FOREIGN_KEY_CHECKS = 1;
